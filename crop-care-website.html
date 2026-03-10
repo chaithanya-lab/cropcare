@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CropCare - Smart Farming Companion</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --soil:#3d2b1f; --leaf:#2d6a4f; --sprout:#52b788;
+  --sun:#f4a261; --gold:#e9c46a; --petal:#f7ede2;
+  --cream:#fefae0; --dark:#1a1208; --text:#2d2416; --muted:#7a6652;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(29,18,8,.95);backdrop-filter:blur(12px);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;border-bottom:2px solid var(--sprout)}
+.nav-logo{font-family:'Playfair Display',serif;color:var(--gold);font-size:1.3rem;font-weight:900;letter-spacing:1px}
+.nav-links{display:flex;gap:1.2rem;list-style:none;flex-wrap:wrap}
+.nav-links a{color:var(--petal);text-decoration:none;font-size:.82rem;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--gold)}
+
+/* SCORE BAR */
+.score-bar{position:fixed;top:64px;left:0;right:0;z-index:99;background:var(--soil);color:var(--gold);text-align:center;padding:.4rem;font-size:.9rem;font-weight:600;letter-spacing:1px;display:flex;justify-content:center;gap:2rem}
+.score-bar span{display:flex;align-items:center;gap:.3rem}
+
+/* HERO */
+.hero{min-height:100vh;background:linear-gradient(160deg,#0d2818,#1a4228 40%,#2d6a4f 80%,#52b788);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:5rem 2rem 3rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2352b788' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E")}
+.fe{position:absolute;font-size:2rem;animation:float 6s ease-in-out infinite}
+.fe1{top:15%;left:8%}.fe2{top:20%;right:10%;animation-delay:1.5s}.fe3{bottom:20%;left:12%;animation-delay:3s}.fe4{bottom:15%;right:8%;animation-delay:4.5s}
+@keyframes float{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-20px) rotate(10deg)}}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,5rem);font-weight:900;color:#fff;line-height:1.1;margin-bottom:1rem;text-shadow:0 4px 30px rgba(0,0,0,.4);position:relative;z-index:1}
+.hero h1 span{color:var(--gold)}
+.hero p{color:rgba(255,255,255,.8);font-size:1.1rem;max-width:540px;line-height:1.7;margin-bottom:2rem;position:relative;z-index:1}
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;position:relative;z-index:1}
+.btn{padding:.8rem 2rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;border:2px solid transparent;transition:all .3s;text-decoration:none;display:inline-block}
+.btn-primary{background:var(--gold);color:var(--dark);border-color:var(--gold)}
+.btn-primary:hover{background:transparent;color:var(--gold)}
+.btn-outline{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}
+.btn-outline:hover{background:rgba(255,255,255,.1)}
+
+/* SECTIONS */
+section{padding:5rem 2rem;max-width:1100px;margin:0 auto}
+.section-tag{font-size:.75rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--sprout);margin-bottom:.5rem}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;color:var(--dark);margin-bottom:1rem}
+.section-sub{color:var(--muted);font-size:1rem;line-height:1.7;max-width:580px;margin-bottom:2.5rem}
+
+/* CROP CARDS */
+.crops-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.5rem}
+.crop-card{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.07);transition:transform .3s,box-shadow .3s;cursor:pointer;border:2px solid transparent}
+.crop-card:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,0,0,.13)}
+.crop-card.active{border-color:var(--sprout)}
+.crop-header{padding:1.5rem;display:flex;align-items:center;gap:1rem}
+.crop-emoji{font-size:2.8rem}
+.crop-name{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700}
+.crop-season{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--sprout)}
+.crop-body{padding:0 1.5rem 1.5rem}
+.crop-stats{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap}
+.stat-pill{background:var(--cream);border:1px solid rgba(0,0,0,.08);border-radius:50px;padding:.25rem .75rem;font-size:.75rem;font-weight:500;color:var(--muted)}
+.crop-tip{font-size:.88rem;color:var(--muted);line-height:1.6}
+.progress-bar-wrap{background:#eee;border-radius:50px;height:6px;margin-top:1rem}
+.progress-bar{height:6px;border-radius:50px;background:linear-gradient(90deg,var(--leaf),var(--sprout));transition:width .5s}
+
+/* WEATHER */
+.weather-section{background:linear-gradient(135deg,#0c1f3f,#1a3a6b 50%,#0d3b2a);border-radius:30px;padding:3rem;margin:2rem 0;color:#fff}
+.weather-section .section-title{color:#fff}
+.weather-section .section-sub{color:rgba(255,255,255,.7)}
+.weather-locate-btn{background:var(--gold);color:var(--dark);border:none;border-radius:50px;padding:.8rem 2rem;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:.3s;display:inline-flex;align-items:center;gap:.5rem}
+.weather-locate-btn:hover{background:#f7d96a;transform:scale(1.03)}
+.weather-locate-btn:disabled{opacity:.6;cursor:wait}
+.weather-card{background:rgba(255,255,255,.1);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:2rem;margin-top:1.5rem;display:none}
+.weather-card.show{display:block}
+.weather-top{display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.weather-icon{font-size:4rem}
+.weather-temp{font-size:3rem;font-weight:900;color:var(--gold)}
+.weather-city{font-size:1.1rem;color:rgba(255,255,255,.9);font-weight:600}
+.weather-desc{font-size:.85rem;color:rgba(255,255,255,.65);text-transform:capitalize}
+.weather-stats-row{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.w-stat{background:rgba(255,255,255,.08);border-radius:14px;padding:.8rem 1.2rem;text-align:center;flex:1;min-width:90px}
+.w-stat-val{font-size:1.3rem;font-weight:800;color:var(--gold)}
+.w-stat-lbl{font-size:.7rem;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px;margin-top:.2rem}
+.w-advice-title{font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:1rem;color:var(--gold)}
+.w-crops-row{display:flex;gap:.75rem;flex-wrap:wrap}
+.w-tag{background:rgba(82,183,136,.3);border:1px solid rgba(82,183,136,.5);border-radius:50px;padding:.4rem 1rem;font-size:.82rem;font-weight:600;color:#fff}
+.w-tag.warn{background:rgba(244,162,97,.25);border-color:rgba(244,162,97,.4)}
+.w-alert{background:rgba(231,76,60,.2);border:1px solid rgba(231,76,60,.4);border-radius:12px;padding:.8rem 1.2rem;margin-top:.75rem;font-size:.88rem;color:#ffb3b3}
+.w-error{background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:1rem 1.5rem;margin-top:1rem;font-size:.9rem;color:#ffcccc;display:none}
+.w-error.show{display:block}
+.w-loading{display:none;text-align:center;padding:2rem;color:rgba(255,255,255,.7)}
+.w-loading.show{display:block}
+.spinner{display:inline-block;width:30px;height:30px;border:3px solid rgba(255,255,255,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:.5rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* PLANNER */
+.planner-box{background:#fff;border-radius:30px;padding:3rem;box-shadow:0 8px 40px rgba(0,0,0,.08)}
+.planner-stats{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.pstat{background:var(--cream);border-radius:14px;padding:.8rem 1.2rem;flex:1;min-width:100px;text-align:center}
+.pstat-num{font-size:1.8rem;font-weight:900;color:var(--leaf)}
+.pstat-lbl{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.p-tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.p-tab{padding:.5rem 1.2rem;border-radius:50px;border:2px solid #e0d5c8;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;transition:.3s;font-size:.85rem}
+.p-tab.active{background:var(--leaf);color:#fff;border-color:var(--leaf)}
+.p-tab:hover:not(.active){border-color:var(--sprout);color:var(--leaf)}
+.p-panel{display:none}
+.p-panel.active{display:block}
+.p-form{display:grid;gap:1rem}
+.p-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.fg{display:flex;flex-direction:column;gap:.4rem}
+.fg label{font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.fg input,.fg select,.fg textarea{padding:.7rem 1rem;border-radius:12px;border:2px solid #e0d5c8;background:var(--cream);font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--text);transition:.2s;outline:none}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--sprout);background:#fff}
+.fg textarea{resize:vertical;min-height:80px}
+.p-add-btn{padding:.8rem 2rem;border-radius:50px;background:var(--leaf);color:#fff;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;border:none;transition:.3s;align-self:flex-start}
+.p-add-btn:hover{background:var(--sprout)}
+.p-list{margin-top:1rem;display:grid;gap:.75rem}
+.p-item{background:var(--cream);border-radius:16px;padding:1.2rem 1.5rem;display:flex;align-items:center;gap:1rem;border-left:4px solid var(--sprout)}
+.p-item.overdue{border-left-color:#e74c3c}
+.p-item.today{border-left-color:var(--gold)}
+.p-item-em{font-size:1.8rem}
+.p-item-info{flex:1}
+.p-item-title{font-weight:700;color:var(--dark);font-size:.95rem}
+.p-item-meta{font-size:.78rem;color:var(--muted);margin-top:.2rem}
+.p-del{background:none;border:none;cursor:pointer;font-size:1.1rem;opacity:.4;transition:.2s;padding:.2rem}
+.p-del:hover{opacity:1;color:#e74c3c}
+.p-empty{text-align:center;padding:2rem;color:var(--muted);font-size:.9rem}
+
+/* LOCATION */
+.loc-section{background:linear-gradient(135deg,#1a4228,#2d6a4f);border-radius:30px;padding:3rem;margin:2rem 0}
+.loc-section .section-title{color:#fff}
+.loc-section .section-sub{color:rgba(255,255,255,.7)}
+.loc-inputs{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.loc-input{padding:.8rem 1.2rem;border-radius:12px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:.2s}
+.loc-input option{background:#1a4228;color:#fff}
+.loc-input:focus{border-color:var(--gold);background:rgba(255,255,255,.12)}
+.loc-btn{padding:.8rem 2rem;border-radius:50px;background:var(--gold);color:var(--dark);font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;border:none;transition:.3s}
+.loc-btn:hover{background:#f7d96a}
+.loc-results{display:none;margin-top:1.5rem}
+.loc-results.show{display:block}
+.loc-result-title{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--gold);margin-bottom:1rem}
+.loc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem}
+.loc-card{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:1.2rem;color:#fff;transition:.3s}
+.loc-card:hover{background:rgba(255,255,255,.18);transform:translateY(-3px)}
+.loc-card-em{font-size:2rem;margin-bottom:.5rem}
+.loc-card-name{font-weight:700;font-size:.95rem;margin-bottom:.3rem}
+.loc-card-reason{font-size:.75rem;color:rgba(255,255,255,.65);line-height:1.5}
+.loc-badge{display:inline-block;margin-top:.5rem;background:rgba(82,183,136,.4);border-radius:50px;padding:.15rem .6rem;font-size:.7rem;font-weight:700;color:#a8f0c8}
+
+/* WATER TYPE */
+.wt-section{background:linear-gradient(135deg,#0a1628,#0d2847 50%,#103358);border-radius:30px;padding:3rem;margin:2rem 0}
+.wt-section .section-title{color:#fff}
+.wt-section .section-sub{color:rgba(255,255,255,.7)}
+.wt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-bottom:1.5rem}
+.wt-card{border-radius:20px;padding:1.5rem;cursor:pointer;transition:.3s;border:3px solid transparent;color:#fff}
+.wt-card:hover{transform:scale(1.02)}
+.wt-card.selected{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.25);transform:scale(1.03)}
+.wt-fresh{background:linear-gradient(135deg,#1e40af,#3b82f6)}
+.wt-rain{background:linear-gradient(135deg,#4338ca,#6366f1)}
+.wt-bore{background:linear-gradient(135deg,#92400e,#f59e0b)}
+.wt-drip{background:linear-gradient(135deg,#065f46,#10b981)}
+.wt-icon{font-size:2.5rem;margin-bottom:.7rem}
+.wt-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:.3rem}
+.wt-desc{font-size:.78rem;opacity:.8;line-height:1.5}
+.wt-results{display:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:2rem}
+.wt-results.show{display:block}
+.wt-res-title{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--gold);margin-bottom:1rem}
+.wt-ph{display:inline-block;background:rgba(255,255,255,.12);border-radius:8px;padding:.2rem .6rem;font-size:.75rem;font-weight:700;color:var(--gold);margin-bottom:.8rem}
+.wt-sub{font-size:.78rem;color:rgba(255,255,255,.7);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:.6rem 0 .4rem}
+.wt-chips{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:.5rem}
+.wt-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:50px;padding:.35rem .9rem;font-size:.8rem;font-weight:600;color:#fff}
+.wt-chip.warn{background:rgba(244,162,97,.15);border-color:rgba(244,162,97,.3)}
+.wt-advice{font-size:.88rem;color:rgba(255,255,255,.75);line-height:1.7;margin-top:.8rem}
+
+/* QUIZ */
+.quiz-wrap{background:#fff;border-radius:24px;padding:2.5rem;box-shadow:0 8px 40px rgba(0,0,0,.08)}
+.quiz-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
+.quiz-prog{font-size:.85rem;color:var(--muted);font-weight:600}
+.quiz-prog-bar{background:#eee;height:6px;border-radius:50px;margin-top:.4rem}
+.quiz-prog-fill{height:6px;border-radius:50px;background:var(--sprout);transition:width .5s}
+.quiz-q{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--dark);margin-bottom:1.5rem;line-height:1.5}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.quiz-opt{padding:1rem 1.2rem;border-radius:14px;border:2px solid #e8e0d5;background:var(--cream);font-family:'DM Sans',sans-serif;font-size:.95rem;cursor:pointer;transition:all .25s;text-align:left;font-weight:500;color:var(--text)}
+.quiz-opt:hover{border-color:var(--sprout);background:rgba(82,183,136,.08)}
+.quiz-opt.correct{background:rgba(82,183,136,.2);border-color:var(--sprout);color:var(--leaf)}
+.quiz-opt.wrong{background:rgba(244,162,97,.2);border-color:var(--sun);color:#b34700}
+.quiz-opt:disabled{cursor:not-allowed}
+.quiz-fb{margin-top:1.2rem;padding:1rem 1.2rem;border-radius:12px;font-size:.9rem;display:none;font-weight:500;line-height:1.6}
+.quiz-fb.show{display:block}
+.quiz-fb.ok{background:rgba(82,183,136,.12);color:var(--leaf);border:1px solid var(--sprout)}
+.quiz-fb.bad{background:rgba(244,162,97,.12);color:#8b4500;border:1px solid var(--sun)}
+.quiz-next{margin-top:1.5rem;width:100%;padding:.9rem;border-radius:12px;background:var(--leaf);color:#fff;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;border:none;transition:background .2s;display:none}
+.quiz-next.show{display:block}
+.quiz-next:hover{background:var(--sprout)}
+.quiz-result{text-align:center;padding:2rem 0}
+.quiz-result h3{font-family:'Playfair Display',serif;font-size:2rem;color:var(--dark);margin-bottom:.5rem}
+.score-big{font-size:4rem;font-weight:900;color:var(--leaf)}
+
+/* MEMORY */
+.match-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;max-width:500px;margin:0 auto}
+.mc{aspect-ratio:1;border-radius:14px;background:var(--leaf);display:flex;align-items:center;justify-content:center;font-size:2rem;cursor:pointer;transition:.3s;border:3px solid transparent;user-select:none}
+.mc.flipped{background:#fff;border-color:var(--sprout)}
+.mc.matched{background:rgba(82,183,136,.15);border-color:var(--sprout);animation:matchPop .4s}
+@keyframes matchPop{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.mc .front{display:none}
+.mc.flipped .front,.mc.matched .front{display:block}
+.mc.flipped .back,.mc.matched .back{display:none}
+.match-info{text-align:center;margin-bottom:1.5rem;font-weight:600;color:var(--muted)}
+.restart-btn{display:block;margin:1.5rem auto 0;padding:.7rem 2rem;border-radius:50px;background:var(--leaf);color:#fff;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;border:none;transition:.2s}
+.restart-btn:hover{background:var(--sprout)}
+
+/* DRAG DROP */
+.dnd-section{background:var(--petal);border-radius:30px;padding:3rem}
+.dnd-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:1.5rem}
+.dnd-sources h4,.dnd-targets h4{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--dark);margin-bottom:1rem}
+.drag-items{display:flex;flex-wrap:wrap;gap:.75rem}
+.drag-item{background:#fff;border:2px solid #ddd;border-radius:50px;padding:.5rem 1.2rem;font-size:.85rem;font-weight:600;cursor:grab;transition:all .2s;user-select:none}
+.drag-item:hover{border-color:var(--sprout);background:rgba(82,183,136,.08);transform:scale(1.05)}
+.drag-item.dragging{opacity:.4}
+.drop-zones{display:flex;flex-direction:column;gap:.75rem}
+.drop-zone{border:2px dashed #ccc;border-radius:16px;padding:1rem 1.2rem;min-height:56px;display:flex;align-items:center;gap:.75rem;transition:all .2s;flex-wrap:wrap}
+.drop-zone.drag-over{border-color:var(--sprout);background:rgba(82,183,136,.08)}
+.drop-zone-label{font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;white-space:nowrap}
+.dropped-tag{background:var(--sprout);color:#fff;border-radius:50px;padding:.3rem 1rem;font-size:.8rem;font-weight:600;cursor:pointer;transition:.2s}
+.dropped-tag:hover{background:#c0392b}
+.dnd-check{margin-top:1.5rem;padding:.9rem 2.5rem;border-radius:50px;background:var(--leaf);color:#fff;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;border:none;transition:.2s}
+.dnd-check:hover{background:var(--sprout)}
+.dnd-result{margin-top:1rem;font-weight:600;font-size:.95rem;display:none}
+
+/* SOIL */
+.soil-game{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:1.5rem}
+.soil-type{border-radius:20px;padding:1.5rem;cursor:pointer;transition:.3s;border:3px solid transparent}
+.soil-sandy{background:linear-gradient(135deg,#f5deb3,#deb887)}
+.soil-clay{background:linear-gradient(135deg,#cd853f,#a0522d);color:#fff}
+.soil-loamy{background:linear-gradient(135deg,#8fbc8f,#556b2f);color:#fff}
+.soil-peaty{background:linear-gradient(135deg,#4a4a2a,#2d2d16);color:#fff}
+.soil-type:hover,.soil-type.selected{border-color:var(--gold);transform:scale(1.02)}
+.soil-type h4{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:.4rem}
+.soil-type p{font-size:.82rem;line-height:1.5;opacity:.85}
+
+/* TIPS */
+.tips-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.2rem}
+.tip-card{background:#fff;border-radius:18px;padding:1.5rem;border-left:4px solid var(--sprout);box-shadow:0 3px 16px rgba(0,0,0,.06);transition:.3s}
+.tip-card:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(0,0,0,.1)}
+.tip-icon{font-size:2rem;margin-bottom:.7rem}
+.tip-card h4{font-family:'Playfair Display',serif;font-size:1rem;color:var(--dark);margin-bottom:.4rem}
+.tip-card p{font-size:.85rem;color:var(--muted);line-height:1.6}
+
+/* FOOTER */
+footer{background:var(--soil);color:rgba(255,255,255,.6);text-align:center;padding:2rem;font-size:.85rem}
+footer span{color:var(--gold);font-weight:600}
+
+/* TOAST */
+.toast{position:fixed;bottom:2rem;right:2rem;z-index:999;background:var(--dark);color:#fff;padding:1rem 1.5rem;border-radius:14px;font-size:.9rem;font-weight:500;transform:translateY(100px);opacity:0;transition:all .4s;border-left:4px solid var(--sprout);max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+
+@media(max-width:600px){
+  .quiz-opts,.dnd-grid,.soil-game,.p-row,.loc-inputs{grid-template-columns:1fr}
+  nav .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">🌿 CropCare</div>
+  <ul class="nav-links">
+    <li><a href="#crops">Crops</a></li>
+    <li><a href="#weather">Weather</a></li>
+    <li><a href="#planner">Planner</a></li>
+    <li><a href="#location">Location</a></li>
+    <li><a href="#watertype">Water Type</a></li>
+    <li><a href="#quiz">Quiz</a></li>
+    <li><a href="#match">Memory</a></li>
+    <li><a href="#drag">Sort</a></li>
+    <li><a href="#soil">Soil</a></li>
+    <li><a href="#tips">Tips</a></li>
+  </ul>
+</nav>
+
+<div class="score-bar">
+  <span>&#127807; XP: <b id="totalXP">0</b></span>
+  <span>&#127942; Level: <b id="userLevel">Seedling</b></span>
+  <span>&#9989; Activities: <b id="actCount">0</b>/5</span>
+</div>
+
+<div class="hero">
+  <div class="fe fe1">&#127803;</div>
+  <div class="fe fe2">&#127805;</div>
+  <div class="fe fe3">&#127813;</div>
+  <div class="fe fe4">&#129365;</div>
+  <h1>&#127807; Crop Care &amp;<br><span>Smart Farming Companion</span></h1>
+  <p>Real-time weather advice, personal farm planner, location and water-type crop suggestions. Earn XP as you grow smarter!</p>
+  <div class="hero-btns">
+    <a href="#weather" class="btn btn-primary">&#127748; Weather Advisor</a>
+    <a href="#quiz" class="btn btn-outline">Take the Quiz &#129504;</a>
+  </div>
+</div>
+
+<!-- CROP LIBRARY -->
+<section id="crops">
+  <div class="section-tag">&#128218; Crop Library</div>
+  <h2 class="section-title">Know Your Crops</h2>
+  <p class="section-sub">Click any crop to reveal care tips, growth requirements, and farming insights. Each crop earns XP!</p>
+  <div class="crops-grid" id="cropsGrid"></div>
+</section>
+
+<!-- WEATHER ADVISOR -->
+<section id="weather" style="max-width:1100px;margin:0 auto;padding:2rem">
+  <div class="weather-section">
+    <div class="section-tag" style="color:var(--gold)">&#127748; Live Weather</div>
+    <h2 class="section-title">Weather-Based Crop Advisor</h2>
+    <p class="section-sub">Fetch real-time weather for your location and get tailored crop recommendations and farming alerts.</p>
+    <button class="weather-locate-btn" id="locateBtn" onclick="fetchWeather()">&#128205; Detect My Location</button>
+    <div class="w-loading" id="wLoading"><div class="spinner"></div><p>Fetching location and weather&hellip;</p></div>
+    <div class="w-error" id="wError"></div>
+    <div class="weather-card" id="weatherCard">
+      <div class="weather-top">
+        <div class="weather-icon" id="wIcon">&#127780;</div>
+        <div>
+          <div class="weather-temp" id="wTemp">--&deg;C</div>
+          <div class="weather-city" id="wCity">&#128205; --</div>
+          <div class="weather-desc" id="wDesc">--</div>
+        </div>
+      </div>
+      <div class="weather-stats-row">
+        <div class="w-stat"><div class="w-stat-val" id="wHum">--%</div><div class="w-stat-lbl">Humidity</div></div>
+        <div class="w-stat"><div class="w-stat-val" id="wWind">--</div><div class="w-stat-lbl">Wind km/h</div></div>
+        <div class="w-stat"><div class="w-stat-val" id="wRain">-- mm</div><div class="w-stat-lbl">Rain 24h</div></div>
+        <div class="w-stat"><div class="w-stat-val" id="wUV">--</div><div class="w-stat-lbl">UV Index</div></div>
+      </div>
+      <div class="w-advice-title">&#9989; Recommended Crops Today</div>
+      <div class="w-crops-row" id="wGood"></div>
+      <div style="margin-top:1rem">
+        <div class="w-advice-title" style="color:rgba(255,200,100,.9)">&#9888; Avoid Today</div>
+        <div class="w-crops-row" id="wBad"></div>
+      </div>
+      <div id="wAlertsBox"></div>
+      <p style="margin-top:1rem;font-size:.78rem;color:rgba(255,255,255,.4)">Data: Open-Meteo &amp; OpenStreetMap &bull; <span id="wTime"></span></p>
+    </div>
+  </div>
+</section>
+
+<!-- PERSONAL PLANNER -->
+<section id="planner">
+  <div class="section-tag">&#128197; My Farm</div>
+  <h2 class="section-title">Personal Farming Planner</h2>
+  <p class="section-sub">Schedule sowing, watering, harvesting and more. Track your whole farm calendar in one place.</p>
+  <div class="planner-box">
+    <div class="planner-stats">
+      <div class="pstat"><div class="pstat-num" id="stTotal">0</div><div class="pstat-lbl">Total</div></div>
+      <div class="pstat"><div class="pstat-num" id="stDue">0</div><div class="pstat-lbl">Due Today</div></div>
+      <div class="pstat"><div class="pstat-num" id="stOver">0</div><div class="pstat-lbl">Overdue</div></div>
+      <div class="pstat"><div class="pstat-num" id="stDone">0</div><div class="pstat-lbl">Completed</div></div>
+    </div>
+    <div class="p-tabs">
+      <button class="p-tab active" onclick="showTab('add',this)">&#10133; Add Task</button>
+      <button class="p-tab" onclick="showTab('upcoming',this)">&#128197; Upcoming</button>
+      <button class="p-tab" onclick="showTab('overdue',this)">&#9888; Overdue</button>
+      <button class="p-tab" onclick="showTab('all',this)">&#128203; All</button>
+    </div>
+    <div class="p-panel active" id="panel-add">
+      <div class="p-form">
+        <div class="p-row">
+          <div class="fg">
+            <label>Crop</label>
+            <select id="pCrop">
+              <option value="">-- Select --</option>
+              <option>&#127806; Wheat</option><option>&#127805; Corn</option><option>&#127813; Tomato</option>
+              <option>&#129365; Carrot</option><option>&#129388; Spinach</option><option>&#129349; Onion</option>
+              <option>&#127803; Sunflower</option><option>&#129382; Broccoli</option><option>&#127827;</option>
+              <option>&#129374; Green Beans</option><option>&#129364; Potato</option><option>&#127807; Herbs</option>
+              <option>&#127798; Peppers</option><option>&#129388; Cucumber</option><option>&#129476; Garlic</option>
+              <option>&#127875; Pumpkin</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Task</label>
+            <select id="pType">
+              <option value="Sowing">&#127807; Sowing</option>
+              <option value="Watering">&#128167; Watering</option>
+              <option value="Fertilizing">&#127807; Fertilizing</option>
+              <option value="Pruning">&#9986; Pruning</option>
+              <option value="Pest Control">&#128027; Pest Control</option>
+              <option value="Harvesting">&#127806; Harvesting</option>
+              <option value="Soil Work">&#129729; Soil Work</option>
+            </select>
+          </div>
+        </div>
+        <div class="p-row">
+          <div class="fg"><label>Date</label><input type="date" id="pDate"></div>
+          <div class="fg">
+            <label>Priority</label>
+            <select id="pPriority">
+              <option value="normal">&#128994; Normal</option>
+              <option value="high">&#128993; High</option>
+              <option value="urgent">&#128308; Urgent</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg"><label>Field (optional)</label><input type="text" id="pField" placeholder="e.g. North Field, Greenhouse A"></div>
+        <div class="fg"><label>Notes</label><textarea id="pNotes" placeholder="Any instructions or reminders&#8230;"></textarea></div>
+        <button class="p-add-btn" onclick="addTask()">&#10133; Add Task</button>
+      </div>
+    </div>
+    <div class="p-panel" id="panel-upcoming"><div class="p-list" id="list-upcoming"></div></div>
+    <div class="p-panel" id="panel-overdue"><div class="p-list" id="list-overdue"></div></div>
+    <div class="p-panel" id="panel-all"><div class="p-list" id="list-all"></div></div>
+  </div>
+</section>
+
+<!-- LOCATION CROPS -->
+<section id="location" style="max-width:1100px;margin:0 auto;padding:2rem">
+  <div class="loc-section">
+    <div class="section-tag" style="color:var(--gold)">&#128205; Location</div>
+    <h2 class="section-title">Location-Based Crop Suggestions</h2>
+    <p class="section-sub">Select your climate and season for crops best suited to your geography.</p>
+    <div class="loc-inputs">
+      <select class="loc-input" id="locClimate">
+        <option value="">&#127757; Climate Zone</option>
+        <option value="tropical">&#127796; Tropical</option>
+        <option value="subtropical">&#127807; Subtropical</option>
+        <option value="temperate">&#127794; Temperate</option>
+        <option value="arid">&#127964; Arid</option>
+        <option value="mediterranean">&#9728; Mediterranean</option>
+        <option value="continental">&#10052; Continental</option>
+        <option value="highland">&#9968; Highland</option>
+      </select>
+      <select class="loc-input" id="locSeason">
+        <option value="">&#128197; Season</option>
+        <option value="spring">&#127800; Spring</option>
+        <option value="summer">&#9728; Summer</option>
+        <option value="autumn">&#127810; Autumn</option>
+        <option value="winter">&#10052; Winter</option>
+        <option value="monsoon">&#127783; Monsoon</option>
+        <option value="dry">&#127797; Dry Season</option>
+      </select>
+      <select class="loc-input" id="locSoil">
+        <option value="">&#129729; Soil Type</option>
+        <option value="sandy">Sandy</option>
+        <option value="clay">Clay</option>
+        <option value="loamy">Loamy</option>
+        <option value="peaty">Peaty</option>
+        <option value="any">Not Sure</option>
+      </select>
+      <select class="loc-input" id="locScale">
+        <option value="">&#127806; Farm Scale</option>
+        <option value="home">&#127968; Home Garden</option>
+        <option value="small">&#127807; Small Farm</option>
+        <option value="medium">&#128663; Medium Farm</option>
+        <option value="large">&#127981; Large Farm</option>
+      </select>
+    </div>
+    <button class="loc-btn" onclick="getLocCrops()">&#127757; Get Recommendations</button>
+    <div class="loc-results" id="locResults">
+      <div class="loc-result-title" id="locTitle"></div>
+      <div class="loc-grid" id="locGrid"></div>
+    </div>
+  </div>
+</section>
+
+<!-- WATER TYPE -->
+<section id="watertype" style="max-width:1100px;margin:0 auto;padding:2rem">
+  <div class="wt-section">
+    <div class="section-tag" style="color:var(--gold)">&#128167; Water Intelligence</div>
+    <h2 class="section-title">Planting by Water Type</h2>
+    <p class="section-sub">Your water source affects pH and mineral content. Choose yours for tailored crop advice.</p>
+    <div class="wt-grid">
+      <div class="wt-card wt-fresh" onclick="selectWT('fresh',this)">
+        <div class="wt-icon">&#128704;</div>
+        <div class="wt-name">Fresh / River Water</div>
+        <div class="wt-desc">Natural, balanced pH. Works for most crops.</div>
+      </div>
+      <div class="wt-card wt-rain" onclick="selectWT('rain',this)">
+        <div class="wt-icon">&#127783;</div>
+        <div class="wt-name">Rainwater</div>
+        <div class="wt-desc">Slightly acidic, chlorine-free. Great for delicate plants.</div>
+      </div>
+      <div class="wt-card wt-bore" onclick="selectWT('bore',this)">
+        <div class="wt-icon">&#9935;</div>
+        <div class="wt-name">Borewell / Groundwater</div>
+        <div class="wt-desc">High mineral content, often alkaline. Test before use.</div>
+      </div>
+      <div class="wt-card wt-drip" onclick="selectWT('drip',this)">
+        <div class="wt-icon">&#128166;</div>
+        <div class="wt-name">Treated / Drip Water</div>
+        <div class="wt-desc">Filtered, pH-adjusted. Best for precision farming.</div>
+      </div>
+    </div>
+    <div class="wt-results" id="wtResults"></div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz">
+  <div class="section-tag">&#129504; Knowledge Check</div>
+  <h2 class="section-title">Farming Quiz</h2>
+  <p class="section-sub">Test your knowledge of crops, soil and farming. Earn points and level up!</p>
+  <div class="quiz-wrap">
+    <div class="quiz-header">
+      <div>
+        <div class="quiz-prog">Question <span id="qNum">1</span> of <span id="qTotal">10</span></div>
+        <div class="quiz-prog-bar"><div class="quiz-prog-fill" id="qFill" style="width:10%"></div></div>
+      </div>
+      <div style="font-size:1.5rem;font-weight:800;color:var(--leaf)" id="qScore">0 pts</div>
+    </div>
+    <div id="quizContent"></div>
+  </div>
+</section>
+
+<!-- MEMORY MATCH -->
+<section id="match">
+  <div class="section-tag">&#127183; Memory Game</div>
+  <h2 class="section-title">Crop Memory Match</h2>
+  <p class="section-sub">Find all matching pairs to earn bonus XP!</p>
+  <div class="match-info">Moves: <span id="mMoves">0</span> &bull; Pairs: <span id="mPairs">0</span>/8</div>
+  <div class="match-grid" id="matchGrid"></div>
+  <button class="restart-btn" onclick="initMemory()">&#128260; New Game</button>
+</section>
+
+<!-- DRAG DROP -->
+<section id="drag">
+  <div class="dnd-section">
+    <div class="section-tag">&#127918; Sorting Challenge</div>
+    <h2 class="section-title">Sort Crops by Category</h2>
+    <p class="section-sub">Drag items to the correct category to earn XP!</p>
+    <div class="dnd-grid">
+      <div class="dnd-sources"><h4>&#129082; Items to Sort</h4><div class="drag-items" id="dragItems"></div></div>
+      <div class="dnd-targets"><h4>&#128230; Categories</h4><div class="drop-zones" id="dropZones"></div></div>
+    </div>
+    <button class="dnd-check" onclick="checkDND()">&#9989; Check Answers</button>
+    <div class="dnd-result" id="dndResult"></div>
+  </div>
+</section>
+
+<!-- SOIL -->
+<section id="soil">
+  <div class="section-tag">&#129729; Soil Knowledge</div>
+  <h2 class="section-title">Know Your Soil Types</h2>
+  <p class="section-sub">Click a soil type to learn what grows best in it.</p>
+  <div class="soil-game" id="soilGame"></div>
+</section>
+
+<!-- TIPS -->
+<section id="tips">
+  <div class="section-tag">&#128161; Expert Tips</div>
+  <h2 class="section-title">Essential Farming Tips</h2>
+  <p class="section-sub">Practical wisdom from experienced farmers on irrigation, pests, and soil health.</p>
+  <div class="tips-grid" id="tipsGrid"></div>
+</section>
+
+<footer>
+  <p>&#127807; <span>CropCare &mdash; Smart Farming Companion</span> &bull; Weather &bull; Planner &bull; Location &bull; Water Intelligence</p>
+  <p style="margin-top:.5rem">Grow your knowledge, one crop at a time. &#127806;</p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────
+var crops = [
+  {emoji:"&#127806;",name:"Wheat",season:"Winter/Spring",water:"Medium",sun:"Full Sun",soil:"Loamy",tip:"Sow in well-drained loamy soil. Rotate with legumes to restore nitrogen.",difficulty:2},
+  {emoji:"&#127805;",name:"Corn",season:"Summer",water:"High",sun:"Full Sun",soil:"Sandy-Loam",tip:"Plant in blocks for good pollination. Water deeply at the roots.",difficulty:3},
+  {emoji:"&#127813;",name:"Tomato",season:"Summer",water:"Medium-High",sun:"Full Sun",soil:"Loamy",tip:"Stake plants. Pinch suckers for more fruit. Use mulch to retain moisture.",difficulty:3},
+  {emoji:"&#129365;",name:"Carrot",season:"Spring/Autumn",water:"Low-Med",sun:"Partial Sun",soil:"Sandy",tip:"Loose sandy soil prevents forked roots. Thin to 3cm apart.",difficulty:2},
+  {emoji:"&#129388;",name:"Spinach",season:"Spring/Autumn",water:"Medium",sun:"Partial Shade",soil:"Loamy",tip:"Sow in cool weather. Harvest outer leaves first.",difficulty:1},
+  {emoji:"&#129349;",name:"Onion",season:"Spring",water:"Low",sun:"Full Sun",soil:"Loamy",tip:"Plant sets 10cm apart. Stop watering when tops fall over.",difficulty:2},
+  {emoji:"&#127803;",name:"Sunflower",season:"Summer",water:"Low",sun:"Full Sun",soil:"Any",tip:"Plant facing south. Drought-tolerant once established.",difficulty:1},
+  {emoji:"&#129382;",name:"Broccoli",season:"Autumn/Winter",water:"Medium",sun:"Full Sun",soil:"Clay-Loam",tip:"Harvest the central head before it flowers.",difficulty:2},
+  {emoji:"&#127827;",name:"Strawberry",season:"Spring",water:"Medium",sun:"Full Sun",soil:"Sandy-Loam",tip:"Use raised beds. Mulch with straw. Remove runners unless propagating.",difficulty:2},
+  {emoji:"&#129374;",name:"Green Beans",season:"Summer",water:"Medium",sun:"Full Sun",soil:"Well-drained",tip:"Sow directly. Pick frequently to encourage more pods.",difficulty:1},
+  {emoji:"&#129364;",name:"Potato",season:"Spring",water:"Medium",sun:"Full Sun",soil:"Loamy",tip:"Hill soil around stems. Water consistently to prevent hollow heart.",difficulty:3},
+  {emoji:"&#127807;",name:"Herbs",season:"All Year",water:"Low",sun:"Partial Sun",soil:"Well-drained",tip:"Most herbs thrive in poor soil. Harvest regularly to prevent bolting.",difficulty:1}
+];
+
+var quizQ = [
+  {q:"Best soil for carrots?",opts:["Clay","Sandy","Waterlogged","Alkaline"],ans:1,exp:"Sandy soil lets carrots grow straight without obstruction."},
+  {q:"Best season for wheat?",opts:["Summer","Autumn/Winter","Late Spring","Monsoon"],ans:1,exp:"Wheat is a cool-season crop, planted autumn/winter."},
+  {q:"What is crop rotation?",opts:["Same crop yearly","Move the farm","Different crops in sequence","Water in rotation"],ans:2,exp:"Rotation replenishes nutrients and breaks pest cycles."},
+  {q:"Common tomato pest?",opts:["Aphids","Earthworms","Ladybugs","Grasshoppers"],ans:0,exp:"Aphids suck sap. Ladybugs are beneficial predators."},
+  {q:"Purpose of mulching?",opts:["Add color","Retain moisture & suppress weeds","Feed crops","Block rain"],ans:1,exp:"Mulch reduces evaporation, prevents weeds, and regulates temperature."},
+  {q:"Nitrogen mainly helps with?",opts:["Root growth","Leaf & stem growth","Fruit ripening","Flowers"],ans:1,exp:"Nitrogen drives leafy green growth."},
+  {q:"Best time to water crops?",opts:["Midday","Late evening","Early morning","Anytime"],ans:2,exp:"Early morning reduces evaporation and prevents fungal diseases."},
+  {q:"Companion planting means?",opts:["Same family together","Different plants for mutual benefit","Container planting","Transplanting together"],ans:1,exp:"e.g. Basil repels insects from tomatoes; beans fix nitrogen for corn."},
+  {q:"Nitrogen-fixing legume?",opts:["Wheat","Carrot","Peas","Sunflower"],ans:2,exp:"Peas and beans fix atmospheric nitrogen via root bacteria."},
+  {q:"Loamy soil means?",opts:["Heavy clay","Pure sand","Balanced sand/silt/clay","Rocky"],ans:2,exp:"Loam drains well, retains moisture, and is nutrient-rich."}
+];
+
+var dndData = {
+  items:[
+    {label:"&#127806; Wheat",id:"wheat",cat:"grains"},{label:"&#127813; Tomato",id:"tomato",cat:"vegs"},
+    {label:"&#128167; Drip Irrigation",id:"drip",cat:"irr"},{label:"&#127805; Corn",id:"corn",cat:"grains"},
+    {label:"Aphid Spray",id:"aphid",cat:"pest"},{label:"&#129365; Carrot",id:"carrot",cat:"vegs"},
+    {label:"&#128703; Sprinkler",id:"sprinkler",cat:"irr"},{label:"Ladybug Release",id:"ladybug",cat:"pest"},
+    {label:"&#127803; Sunflower",id:"sun",cat:"flowers"},{label:"&#127801; Rose",id:"rose",cat:"flowers"}
+  ],
+  cats:[
+    {id:"grains",label:"&#127806; Grains"},{id:"vegs",label:"&#129382; Vegetables"},
+    {id:"irr",label:"&#128167; Irrigation"},{id:"pest",label:"&#128027; Pest Control"},
+    {id:"flowers",label:"&#127800; Flowers"}
+  ]
+};
+
+var matchEmojis = ["&#127806;","&#127813;","&#127805;","&#129365;","&#127803;","&#129364;","&#129374;","&#129382;"];
+
+var soilData = [
+  {cls:"soil-sandy",name:"Sandy Soil",desc:"Drains fast, warms quickly. Low nutrients. Needs frequent watering.",crops:"Carrots, Radishes, Herbs, Strawberries"},
+  {cls:"soil-clay",name:"Clay Soil",desc:"Holds water and nutrients well but drains poorly. Improve with compost.",crops:"Broccoli, Cabbage, Beans, Sunflowers"},
+  {cls:"soil-loamy",name:"Loamy Soil",desc:"Ideal garden soil — balanced mix. Retains moisture and drains well.",crops:"Wheat, Tomatoes, Potatoes, Corn"},
+  {cls:"soil-peaty",name:"Peaty Soil",desc:"High organic matter, acidic. Good for acid-loving plants.",crops:"Blueberries, Cranberries, Azaleas"}
+];
+
+var tips = [
+  {icon:"&#127754;",title:"Drip Irrigation Saves Water",text:"Drip systems cut evaporation by up to 50% vs overhead sprinklers."},
+  {icon:"&#129729;",title:"Earthworms Are Your Friends",text:"Worms aerate soil, improve drainage, and produce natural fertiliser."},
+  {icon:"&#129476;",title:"Garlic Repels Pests",text:"Plant near roses and tomatoes to deter aphids without chemicals."},
+  {icon:"&#9728;",title:"Know Your Sun Requirements",text:"Most vegetables need 6-8h direct sun. Leafy greens tolerate shade."},
+  {icon:"&#127777;",title:"Soil Temperature Matters",text:"Seeds germinate best at 18-25C. Use a thermometer before sowing."},
+  {icon:"&#9851;",title:"Compost Kitchen Scraps",text:"Vegetable peels and coffee grounds make excellent compost."},
+  {icon:"&#127783;",title:"Rainwater is Better",text:"Chlorine-free and slightly acidic — perfect for most garden plants."},
+  {icon:"&#9986;",title:"Prune for Productivity",text:"Regular pruning directs energy to fruit. Remove diseased branches."}
+];
+
+var locationDB = {
+  tropical:{spring:["&#127796; Coconut","&#127820; Banana","&#127821; Pineapple","&#129381; Mango","&#127798; Chili","&#129364; Sweet Potato","&#129388; Cucumber","&#127813; Tomato"],summer:["&#127805; Corn","&#127813; Tomato","&#129388; Cucumber","&#127798; Peppers","&#129390; Eggplant","&#129374; Cowpea","&#129372; Groundnut"],monsoon:["&#127806; Rice","&#129388; Leafy Greens","&#127807; Lemongrass","&#127819; Lime"],dry:["&#127806; Sorghum","&#129372; Groundnut","&#127803; Sunflower","&#129476; Garlic","&#129349; Onion"],autumn:["&#129390; Eggplant","&#129388; Leafy Greens","&#129365; Carrot","&#129349; Onion"],winter:["&#129388; Lettuce","&#127807; Herbs","&#129365; Carrot","&#127813; Cherry Tomato"]},
+  subtropical:{spring:["&#127827; Strawberry","&#127813; Tomato","&#127805; Corn","&#129388; Cucumber","&#127798; Pepper","&#129388; Spinach","&#129349; Onion"],summer:["&#127820; Melon","&#127805; Corn","&#127803; Sunflower","&#129374; Beans","&#127798; Chili"],autumn:["&#129382; Broccoli","&#129365; Carrot","&#129349; Onion","&#129476; Garlic","&#127806; Wheat"],winter:["&#127806; Wheat","&#129382; Kale","&#127807; Herbs","&#129365; Carrot"],monsoon:["&#127806; Rice","&#127813; Tomato","&#129388; Cucumber","&#129374; Cowpea"],dry:["&#127803; Sunflower","&#129476; Garlic","&#129349; Onion","&#127806; Sorghum"]},
+  temperate:{spring:["&#129364; Potato","&#129365; Carrot","&#127827; Strawberry","&#129349; Onion","&#129388; Spinach","&#127807; Herbs","&#129374; Peas"],summer:["&#127813; Tomato","&#127805; Corn","&#127803; Sunflower","&#129374; Beans","&#129388; Cucumber","&#127798; Pepper"],autumn:["&#129382; Broccoli","&#129476; Garlic","&#127875; Pumpkin","&#127806; Wheat","&#129365; Carrot","&#129382; Kale"],winter:["&#127806; Winter Wheat","&#129388; Chard","&#129349; Leeks","&#127807; Cover Crops"],monsoon:["&#129388; Lettuce","&#127807; Herbs","&#129374; Beans","&#129388; Cucumber"],dry:["&#127803; Sunflower","&#127806; Barley","&#129476; Garlic"]},
+  arid:{spring:["&#129349; Onion","&#129476; Garlic","&#129365; Carrot","&#127807; Herbs","&#129364; Potato"],summer:["&#127803; Sunflower","&#127806; Sorghum","&#129372; Groundnut","&#127817; Watermelon","&#129349; Onion"],autumn:["&#127806; Wheat","&#129476; Garlic","&#129365; Carrot"],winter:["&#127806; Barley","&#129388; Chard","&#127807; Herbs"],monsoon:["&#127806; Pearl Millet","&#129374; Cowpea","&#129376; Sesame"],dry:["&#127806; Sorghum","&#127803; Sunflower","&#129349; Onion","&#129372; Groundnut"]},
+  mediterranean:{spring:["&#127813; Tomato","&#129388; Cucumber","&#127807; Herbs","&#129349; Onion","&#129476; Garlic"],summer:["&#127820; Melon","&#127803; Sunflower","&#127805; Corn","&#127798; Pepper","&#129390; Eggplant"],autumn:["&#127806; Wheat","&#129382; Broccoli","&#129476; Garlic"],winter:["&#127806; Wheat","&#129382; Kale","&#127807; Herbs","&#129365; Carrot"],monsoon:["&#129388; Lettuce","&#127807; Herbs","&#129374; Fava Beans"],dry:["&#127803; Sunflower","&#129349; Onion","&#127807; Lavender","&#127806; Barley"]},
+  continental:{spring:["&#129364; Potato","&#129365; Carrot","&#129374; Peas","&#129388; Spinach","&#127807; Herbs"],summer:["&#127805; Corn","&#127813; Tomato","&#127803; Sunflower","&#129374; Beans","&#129388; Cucumber"],autumn:["&#127806; Winter Wheat","&#129382; Broccoli","&#129476; Garlic","&#127875; Pumpkin","&#129382; Kale"],winter:["&#127807; Cover Crops","&#129388; Chard"],monsoon:["&#129388; Leafy Greens","&#127807; Herbs","&#129374; Beans"],dry:["&#127806; Barley","&#127803; Sunflower","&#129476; Garlic"]},
+  highland:{spring:["&#129364; Potato","&#129365; Carrot","&#129388; Spinach","&#129374; Peas","&#127807; Herbs"],summer:["&#129388; Lettuce","&#129382; Broccoli","&#129365; Carrot","&#127807; Herbs","&#129349; Onion"],autumn:["&#127806; Barley","&#129382; Broccoli","&#129476; Garlic","&#129364; Potato"],winter:["&#127807; Cover Crops","&#129382; Hardy Kale","&#127806; Winter Rye"],monsoon:["&#129388; Leafy Greens","&#129365; Carrot","&#127807; Herbs"],dry:["&#127806; Barley","&#127807; Herbs","&#129476; Garlic"]}
+};
+
+var wtData = {
+  fresh:{title:"&#128704; Fresh / River Water",ph:"6.5-7.5 Neutral",best:["&#127813; Tomato","&#127805; Corn","&#129365; Carrot","&#129388; Spinach","&#127803; Sunflower","&#129374; Beans","&#129388; Cucumber","&#129364; Potato"],avoid:["Blueberry (needs more acid)"],advice:"River water is neutral to slightly alkaline. Works for a wide range of crops without soil amendment. Test pH quarterly and apply lime or sulfur to adjust. Efficient with drip, sprinkler, or flood systems."},
+  rain:{title:"&#127783; Rainwater",ph:"5.5-6.5 Slightly Acidic",best:["Blueberry","&#127827; Strawberry","&#129364; Potato","&#127807; Herbs","&#129388; Spinach","&#127806; Wheat","&#129382; Broccoli"],avoid:["&#129349; Onion (prefers neutral)","&#129476; Garlic (prefers alkaline)"],advice:"Rainwater is chlorine-free and slightly acidic — excellent for acid-loving plants. Collect in clean tanks to avoid debris contamination. Low minerals mean no salt buildup. Ideal for seedlings and foliar spraying."},
+  bore:{title:"&#9935; Borewell / Groundwater",ph:"7.0-8.5 Alkaline (varies)",best:["&#127803; Sunflower","&#129476; Garlic","&#129349; Onion","&#127806; Barley","&#127807; Rosemary","&#129372; Groundnut","&#127806; Sorghum"],avoid:["Blueberry","&#127827; Strawberry","&#129364; Potato (salt sensitive)"],advice:"Borewell water is often hard and alkaline. Always test EC, TDS and pH before use. If EC is above 2 dS/m, dilute with rainwater. Add gypsum for sodic soils. Use drip irrigation to minimise salt surface buildup."},
+  drip:{title:"&#128166; Treated / Drip Water",ph:"5.8-6.8 Optimised",best:["&#127813; Tomato","&#127798; Peppers","&#129388; Cucumber","&#127827; Strawberry","&#129374; Beans","&#129388; Lettuce","&#127807; Herbs","&#129382; Broccoli"],avoid:["Large flood crops like Rice"],advice:"Treated drip water is the gold standard for high-value crops. Fertigate through the system for maximum efficiency. Flush lines regularly. Use pressure-compensating emitters. Saves 40-60% water vs flood irrigation."}
+};
+
+// ── XP & TOAST ───────────────────────────────────────
+var xp = 0, acts = 0;
+var levels = [{min:0,name:"Seedling &#127807;"},{min:50,name:"Sprout &#127807;"},{min:150,name:"Gardener"},{min:300,name:"Farmer &#128663;"},{min:500,name:"Master Farmer &#127806;"}];
+function addXP(n, msg) {
+  xp += n;
+  document.getElementById("totalXP").textContent = xp;
+  var lv = levels.filter(function(l){return xp >= l.min;}).pop();
+  document.getElementById("userLevel").innerHTML = lv.name;
+  if (msg) showToast("+" + n + " XP! " + msg);
+}
+function addAct() { acts = Math.min(5, acts + 1); document.getElementById("actCount").textContent = acts; }
+function showToast(msg) {
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(function(){ t.classList.remove("show"); }, 3000);
+}
+
+// ── CROPS ────────────────────────────────────────────
+var explored = {};
+function renderCrops() {
+  var g = document.getElementById("cropsGrid");
+  g.innerHTML = crops.map(function(c, i) {
+    return '<div class="crop-card" onclick="exploreCrop(' + i + ')" id="cc' + i + '">'
+      + '<div class="crop-header"><div class="crop-emoji">' + c.emoji + '</div>'
+      + '<div><div class="crop-name">' + c.name + '</div><div class="crop-season">' + c.season + '</div></div></div>'
+      + '<div class="crop-body">'
+      + '<div class="crop-stats"><span class="stat-pill">&#128167; ' + c.water + '</span><span class="stat-pill">&#9728; ' + c.sun + '</span><span class="stat-pill">&#129729; ' + c.soil + '</span></div>'
+      + '<div class="crop-tip" id="ct' + i + '" style="display:none">' + c.tip + '</div>'
+      + '<div class="progress-bar-wrap"><div class="progress-bar" style="width:' + (c.difficulty * 33) + '%"></div></div>'
+      + '<div style="font-size:.7rem;color:var(--muted);margin-top:.4rem">Difficulty: ' + "&#11088;".repeat(c.difficulty) + '</div>'
+      + '</div></div>';
+  }).join("");
+}
+function exploreCrop(i) {
+  var tip = document.getElementById("ct" + i);
+  var card = document.getElementById("cc" + i);
+  tip.style.display = tip.style.display === "none" ? "block" : "none";
+  card.classList.toggle("active");
+  if (!explored[i]) {
+    explored[i] = true;
+    addXP(5, "Explored " + crops[i].name + "!");
+    if (Object.keys(explored).length === crops.length) { addXP(30, "All crops explored!"); addAct(); }
+  }
+}
+
+// ── WEATHER ──────────────────────────────────────────
+function wmoEmoji(c) {
+  if (c === 0) return "&#9728;";
+  if (c <= 2) return "&#9925;";
+  if (c <= 3) return "&#9729;";
+  if (c <= 49) return "&#127787;";
+  if (c <= 59) return "&#127783;";
+  if (c <= 69) return "&#127783;";
+  if (c <= 79) return "&#10052;";
+  if (c <= 84) return "&#127783;";
+  if (c <= 99) return "&#9928;";
+  return "&#9928;";
+}
+function wmoDesc(c) {
+  if (c === 0) return "Clear sky";
+  if (c <= 2) return "Partly cloudy";
+  if (c <= 3) return "Overcast";
+  if (c <= 49) return "Foggy / Hazy";
+  if (c <= 59) return "Drizzle";
+  if (c <= 69) return "Rain";
+  if (c <= 79) return "Snow";
+  if (c <= 84) return "Rain showers";
+  return "Thunderstorm";
+}
+function cropAdvice(temp, hum, rain, wind) {
+  var good = [], bad = [], alerts = [];
+  if (temp >= 18 && temp <= 28 && hum >= 45 && hum <= 78 && rain < 15)
+    good.push("&#127813; Tomato","&#129365; Carrot","&#129374; Beans","&#129388; Spinach","&#127807; Herbs");
+  if (temp >= 10 && temp <= 22) good.push("&#129382; Broccoli","&#129349; Onion","&#129364; Potato");
+  if (temp >= 22 && hum < 65) good.push("&#127805; Corn","&#127803; Sunflower","&#127798; Peppers");
+  if (temp >= 6 && temp <= 16) good.push("&#127806; Wheat","&#129365; Carrot","&#129388; Spinach");
+  if (temp > 35) { bad.push("&#129388; Spinach (bolts)","&#129382; Broccoli (bolts)","&#129364; Potato (scorch)"); alerts.push("&#127777; Extreme heat: shade tender crops, water at dawn."); }
+  if (temp < 4) { bad.push("&#127813; Tomato (frost)","&#127798; Peppers (frost)","&#127805; Corn (frost)"); alerts.push("&#10052; Frost risk: cover sensitive crops tonight."); }
+  if (rain > 25) { bad.push("&#127803; Sunflower (waterlogged)","&#127806; Wheat (fungal risk)"); alerts.push("&#127783; Heavy rain: check drainage, avoid spraying."); }
+  if (wind > 45) alerts.push("&#128168; Strong winds: stake tall crops, delay spraying.");
+  if (hum > 85) alerts.push("&#128167; High humidity: watch for fungal issues.");
+  function uniq(a) { var seen = {}; return a.filter(function(x){ return seen[x] ? false : (seen[x] = true); }); }
+  return {good: uniq(good), bad: uniq(bad), alerts: alerts};
+}
+function fetchWeather() {
+  var btn = document.getElementById("locateBtn");
+  var loading = document.getElementById("wLoading");
+  var card = document.getElementById("weatherCard");
+  var err = document.getElementById("wError");
+  btn.disabled = true; btn.textContent = "Locating...";
+  loading.classList.add("show"); card.classList.remove("show"); err.classList.remove("show");
+  if (!navigator.geolocation) {
+    showWErr("Geolocation not supported by this browser.");
+    btn.disabled = false; btn.innerHTML = "&#128205; Detect My Location"; loading.classList.remove("show"); return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      var lat = pos.coords.latitude.toFixed(4);
+      var lon = pos.coords.longitude.toFixed(4);
+      var city = lat + ", " + lon;
+      fetch("https://nominatim.openstreetmap.org/reverse?lat=" + lat + "&lon=" + lon + "&format=json", {headers:{"Accept-Language":"en"}})
+        .then(function(r){ return r.json(); })
+        .then(function(d){ var a = d.address; city = a.city || a.town || a.village || a.county || a.state || city; })
+        .catch(function(){})
+        .finally(function() {
+          fetch("https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,precipitation,uv_index&timezone=auto")
+            .then(function(r){ return r.json(); })
+            .then(function(wx) {
+              var c = wx.current;
+              var temp = Math.round(c.temperature_2m);
+              var hum = c.relative_humidity_2m;
+              var wind = Math.round(c.wind_speed_10m);
+              var rain = c.precipitation || 0;
+              var uv = c.uv_index != null ? c.uv_index : "--";
+              document.getElementById("wIcon").innerHTML = wmoEmoji(c.weather_code);
+              document.getElementById("wTemp").textContent = temp + "\u00b0C";
+              document.getElementById("wCity").textContent = "\ud83d\udccd " + city;
+              document.getElementById("wDesc").textContent = wmoDesc(c.weather_code);
+              document.getElementById("wHum").textContent = hum + "%";
+              document.getElementById("wWind").textContent = wind;
+              document.getElementById("wRain").textContent = rain.toFixed(1) + " mm";
+              document.getElementById("wUV").textContent = uv;
+              document.getElementById("wTime").textContent = new Date().toLocaleString();
+              var adv = cropAdvice(temp, hum, rain, wind);
+              document.getElementById("wGood").innerHTML = adv.good.length
+                ? adv.good.map(function(x){ return '<span class="w-tag">' + x + '</span>'; }).join("")
+                : '<span style="color:rgba(255,255,255,.6);font-size:.85rem">No strong matches today</span>';
+              document.getElementById("wBad").innerHTML = adv.bad.length
+                ? adv.bad.map(function(x){ return '<span class="w-tag warn">' + x + '</span>'; }).join("")
+                : '<span style="color:rgba(255,255,255,.6);font-size:.85rem">No restrictions today &#128077;</span>';
+              document.getElementById("wAlertsBox").innerHTML = adv.alerts.map(function(a){ return '<div class="w-alert">' + a + '</div>'; }).join("");
+              loading.classList.remove("show"); card.classList.add("show");
+              btn.innerHTML = "&#128260; Refresh"; btn.disabled = false;
+              addXP(20, "Weather advisor used!");
+            })
+            .catch(function(e){ showWErr("Weather fetch failed: " + e.message); btn.disabled = false; btn.innerHTML = "&#128205; Detect My Location"; loading.classList.remove("show"); });
+        });
+    },
+    function(e) {
+      var m = "Location error. ";
+      if (e.code === 1) m += "Please allow location access in browser settings.";
+      else if (e.code === 2) m += "Location unavailable. Check GPS/network.";
+      else if (e.code === 3) m += "Request timed out. Try again.";
+      showWErr(m); btn.disabled = false; btn.innerHTML = "&#128205; Detect My Location"; loading.classList.remove("show");
+    },
+    {timeout:15000, enableHighAccuracy:false}
+  );
+}
+function showWErr(msg) { var e = document.getElementById("wError"); e.textContent = "\u26a0\ufe0f " + msg; e.classList.add("show"); }
+
+// ── PLANNER ──────────────────────────────────────────
+var tasks = [];
+document.getElementById("pDate").value = new Date().toISOString().split("T")[0];
+function showTab(tab, el) {
+  document.querySelectorAll(".p-tab").forEach(function(t){ t.classList.remove("active"); });
+  document.querySelectorAll(".p-panel").forEach(function(p){ p.classList.remove("active"); });
+  el.classList.add("active");
+  document.getElementById("panel-" + tab).classList.add("active");
+  if (tab !== "add") renderList(tab);
+}
+function addTask() {
+  var crop = document.getElementById("pCrop").value;
+  var type = document.getElementById("pType").value;
+  var date = document.getElementById("pDate").value;
+  var pri  = document.getElementById("pPriority").value;
+  var field= document.getElementById("pField").value;
+  var notes= document.getElementById("pNotes").value;
+  if (!crop || !date) { showToast("Please select a crop and date"); return; }
+  tasks.push({id: Date.now(), crop:crop, type:type, date:date, pri:pri, field:field, notes:notes});
+  document.getElementById("pCrop").value = "";
+  document.getElementById("pNotes").value = "";
+  document.getElementById("pField").value = "";
+  updateStats();
+  showToast("Task added: " + type + " for " + crop);
+  addXP(10, "Task planned!");
+}
+function delTask(id) {
+  tasks = tasks.filter(function(t){ return t.id !== id; });
+  updateStats();
+  ["upcoming","overdue","all"].forEach(function(f){
+    var el = document.getElementById("list-" + f);
+    if (el && el.parentElement.classList.contains("active")) renderList(f);
+  });
+}
+function updateStats() {
+  var today = new Date().toISOString().split("T")[0];
+  document.getElementById("stTotal").textContent = tasks.length;
+  document.getElementById("stDue").textContent   = tasks.filter(function(t){ return t.date === today; }).length;
+  document.getElementById("stOver").textContent  = tasks.filter(function(t){ return t.date < today; }).length;
+  document.getElementById("stDone").textContent  = 0;
+}
+function renderList(filter) {
+  var today = new Date().toISOString().split("T")[0];
+  var list = tasks;
+  if (filter === "upcoming") list = tasks.filter(function(t){ return t.date >= today; }).sort(function(a,b){ return a.date.localeCompare(b.date); });
+  if (filter === "overdue")  list = tasks.filter(function(t){ return t.date < today; });
+  if (filter === "all")      list = tasks.slice().sort(function(a,b){ return a.date.localeCompare(b.date); });
+  var c = document.getElementById("list-" + filter);
+  if (!list.length) { c.innerHTML = '<div class="p-empty">No tasks here. Add some from the Add tab!</div>'; return; }
+  var priMap = {urgent:"&#128308;", high:"&#128993;", normal:"&#128994;"};
+  c.innerHTML = list.map(function(t) {
+    var over = t.date < today;
+    var isToday = t.date === today;
+    var cls = over ? "overdue" : isToday ? "today" : "";
+    var em = t.crop.split(" ")[0] || "&#127807;";
+    return '<div class="p-item ' + cls + '">'
+      + '<div class="p-item-em">' + em + '</div>'
+      + '<div class="p-item-info">'
+      + '<div class="p-item-title">' + t.type + ' &mdash; ' + t.crop + ' ' + (priMap[t.pri]||"") + '</div>'
+      + '<div class="p-item-meta">&#128197; ' + t.date + (t.field ? ' &bull; &#128205; ' + t.field : "") + (t.notes ? ' &bull; ' + t.notes : "") + (over ? ' <span style="color:#e74c3c;font-weight:700">&#9888; Overdue</span>' : "") + '</div>'
+      + '</div>'
+      + '<button class="p-del" onclick="delTask(' + t.id + ')" title="Delete">&#128465;</button>'
+      + '</div>';
+  }).join("");
+}
+
+// ── LOCATION CROPS ───────────────────────────────────
+var climateLabel = {tropical:"Tropical",subtropical:"Subtropical",temperate:"Temperate",arid:"Arid",mediterranean:"Mediterranean",continental:"Continental",highland:"Highland"};
+var climateReason = {tropical:"Thrives in heat and humidity",subtropical:"Suits warm seasons with mild winters",temperate:"Ideal for balanced seasonal climate",arid:"Drought-tolerant and heat-resistant",mediterranean:"Adapted to dry summers and mild winters",continental:"Hardy across cold winters and warm summers",highland:"Cool-weather adapted, altitude-tolerant"};
+function getLocCrops() {
+  var climate = document.getElementById("locClimate").value;
+  var season  = document.getElementById("locSeason").value;
+  var soil    = document.getElementById("locSoil").value;
+  var scale   = document.getElementById("locScale").value;
+  if (!climate || !season) { showToast("Please select a climate zone and season"); return; }
+  var db = locationDB[climate];
+  var list = db ? (db[season] || db["spring"] || []) : [];
+  if (!list.length) { showToast("No data for this combination"); return; }
+  var res   = document.getElementById("locResults");
+  var title = document.getElementById("locTitle");
+  var grid  = document.getElementById("locGrid");
+  var sOpt  = document.getElementById("locSeason");
+  title.textContent = "Best Crops: " + (climateLabel[climate]||climate) + " \u00b7 " + sOpt.options[sOpt.selectedIndex].text;
+  var reason    = climateReason[climate] || "Suited to your conditions";
+  var soilNote  = (soil && soil !== "any") ? " \u00b7 Adjust for " + soil + " soil" : "";
+  var scaleNote = scale === "home" ? " \u00b7 Great for home gardens" : scale === "large" ? " \u00b7 Scalable commercially" : "";
+  grid.innerHTML = list.map(function(c) {
+    var parts = c.split(" ");
+    var emoji = parts[0]; var name = parts.slice(1).join(" ");
+    return '<div class="loc-card">'
+      + '<div class="loc-card-em">' + emoji + '</div>'
+      + '<div class="loc-card-name">' + name + '</div>'
+      + '<div class="loc-card-reason">' + reason + soilNote + '</div>'
+      + '<span class="loc-badge">&#10003; Recommended' + scaleNote + '</span>'
+      + '</div>';
+  }).join("");
+  res.classList.add("show");
+  addXP(15, "Location crops explored!");
+}
+
+// ── WATER TYPE ───────────────────────────────────────
+function selectWT(type, el) {
+  document.querySelectorAll(".wt-card").forEach(function(c){ c.classList.remove("selected"); });
+  el.classList.add("selected");
+  var d = wtData[type];
+  var res = document.getElementById("wtResults");
+  res.innerHTML = '<div class="wt-res-title">' + d.title + '</div>'
+    + '<div class="wt-ph">pH ' + d.ph + '</div>'
+    + '<div class="wt-sub">&#9989; Best Crops</div>'
+    + '<div class="wt-chips">' + d.best.map(function(c){ return '<span class="wt-chip">' + c + '</span>'; }).join("") + '</div>'
+    + '<div class="wt-sub">&#9888; Approach with Care</div>'
+    + '<div class="wt-chips">' + d.avoid.map(function(c){ return '<span class="wt-chip warn">' + c + '</span>'; }).join("") + '</div>'
+    + '<div class="wt-advice">' + d.advice + '</div>';
+  res.classList.add("show");
+  addXP(10, "Water type knowledge gained!");
+}
+
+// ── QUIZ ─────────────────────────────────────────────
+var qIdx = 0, qScore = 0, qAnswered = false;
+function renderQuiz() {
+  var wrap = document.getElementById("quizContent");
+  if (qIdx >= quizQ.length) {
+    var pct = Math.round((qScore / quizQ.length) * 100);
+    wrap.innerHTML = '<div class="quiz-result">'
+      + '<div style="font-size:3rem">' + (pct >= 70 ? "&#127942;" : "&#127807;") + '</div>'
+      + '<h3>Quiz Complete!</h3>'
+      + '<div class="score-big">' + qScore + '/' + quizQ.length + '</div>'
+      + '<p>' + (pct >= 80 ? "Excellent! Master Farmer!" : pct >= 60 ? "Good job! Keep learning!" : "Keep practising!") + '</p>'
+      + '<button onclick="restartQuiz()" class="btn btn-primary" style="margin:.5rem">&#128260; Retry</button>'
+      + '</div>';
+    addXP(qScore * 15, "Quiz done! " + qScore + "/" + quizQ.length); addAct(); return;
+  }
+  var q = quizQ[qIdx];
+  document.getElementById("qNum").textContent = qIdx + 1;
+  document.getElementById("qTotal").textContent = quizQ.length;
+  document.getElementById("qFill").style.width = ((qIdx + 1) / quizQ.length * 100) + "%";
+  document.getElementById("qScore").textContent = (qScore * 15) + " pts";
+  wrap.innerHTML = '<div class="quiz-q">' + q.q + '</div>'
+    + '<div class="quiz-opts">' + q.opts.map(function(o, i){ return '<button class="quiz-opt" onclick="ansQ(' + i + ')">' + o + '</button>'; }).join("") + '</div>'
+    + '<div class="quiz-fb" id="qFb"></div>'
+    + '<button class="quiz-next" id="qNext" onclick="nextQ()">Next &#8594;</button>';
+  qAnswered = false;
+}
+function ansQ(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  var q = quizQ[qIdx];
+  var opts = document.querySelectorAll(".quiz-opt");
+  opts.forEach(function(o){ o.disabled = true; });
+  opts[q.ans].classList.add("correct");
+  var fb = document.getElementById("qFb");
+  if (i === q.ans) { opts[i].classList.add("correct"); fb.textContent = "&#9989; Correct! " + q.exp; fb.className = "quiz-fb show ok"; qScore++; }
+  else { opts[i].classList.add("wrong"); fb.textContent = "&#10060; Not quite. " + q.exp; fb.className = "quiz-fb show bad"; }
+  document.getElementById("qNext").classList.add("show");
+}
+function nextQ() { qIdx++; renderQuiz(); }
+function restartQuiz() { qIdx = 0; qScore = 0; renderQuiz(); }
+
+// ── MEMORY ───────────────────────────────────────────
+var mCards = [], mFlipped = [], mMatched = 0, mMoves = 0, mLock = false;
+function initMemory() {
+  var pairs = matchEmojis.concat(matchEmojis).sort(function(){ return Math.random() - .5; });
+  mMatched = 0; mMoves = 0; mFlipped = [];
+  document.getElementById("mMoves").textContent = 0;
+  document.getElementById("mPairs").textContent = 0;
+  document.getElementById("matchGrid").innerHTML = pairs.map(function(e, i){
+    return '<div class="mc" id="mc' + i + '" onclick="flipMC(' + i + ',\'' + e + '\')">'
+      + '<span class="back">&#127807;</span><span class="front">' + e + '</span></div>';
+  }).join("");
+  mCards = pairs;
+}
+function flipMC(i, val) {
+  if (mLock) return;
+  var card = document.getElementById("mc" + i);
+  if (card.classList.contains("flipped") || card.classList.contains("matched")) return;
+  card.classList.add("flipped");
+  mFlipped.push({i:i, val:val});
+  if (mFlipped.length === 2) {
+    mLock = true; mMoves++;
+    document.getElementById("mMoves").textContent = mMoves;
+    setTimeout(function() {
+      var a = mFlipped[0], b = mFlipped[1];
+      if (a.val === b.val) {
+        document.getElementById("mc" + a.i).classList.add("matched");
+        document.getElementById("mc" + b.i).classList.add("matched");
+        mMatched++;
+        document.getElementById("mPairs").textContent = mMatched;
+        if (mMatched === 8) { addXP(60, "Memory game done!"); addAct(); showToast("All pairs in " + mMoves + " moves!"); }
+      } else {
+        document.getElementById("mc" + a.i).classList.remove("flipped");
+        document.getElementById("mc" + b.i).classList.remove("flipped");
+      }
+      mFlipped = []; mLock = false;
+    }, 800);
+  }
+}
+
+// ── DRAG & DROP ──────────────────────────────────────
+var dndAns = {};
+function initDND() {
+  document.getElementById("dragItems").innerHTML = dndData.items.map(function(it){
+    return '<div class="drag-item" draggable="true" id="di_' + it.id + '" ondragstart="dStart(event,\'' + it.id + '\')">' + it.label + '</div>';
+  }).join("");
+  document.getElementById("dropZones").innerHTML = dndData.cats.map(function(cat){
+    return '<div class="drop-zone" id="dz_' + cat.id + '" ondragover="event.preventDefault();this.classList.add(\'drag-over\')" ondragleave="this.classList.remove(\'drag-over\')" ondrop="dDrop(event,\'' + cat.id + '\')">'
+      + '<span class="drop-zone-label">' + cat.label + '</span></div>';
+  }).join("");
+  dndAns = {};
+}
+var dragId = "";
+function dStart(e, id) { dragId = id; e.dataTransfer.setData("text", id); document.getElementById("di_" + id).classList.add("dragging"); }
+function dDrop(e, catId) {
+  e.preventDefault();
+  var id = e.dataTransfer.getData("text") || dragId;
+  document.querySelectorAll(".drop-zone").forEach(function(z){ z.classList.remove("drag-over"); });
+  var el = document.getElementById("di_" + id); if (!el) return;
+  el.classList.remove("dragging");
+  var zone = document.getElementById("dz_" + catId); if (!zone) return;
+  dndAns[id] = catId;
+  var tag = document.createElement("span");
+  tag.className = "dropped-tag";
+  tag.innerHTML = dndData.items.find(function(x){ return x.id === id; }).label || id;
+  tag.onclick = function(){ zone.removeChild(tag); delete dndAns[id]; document.getElementById("dragItems").appendChild(el); el.style.display = ""; };
+  zone.appendChild(tag); el.style.display = "none";
+}
+function checkDND() {
+  var correct = dndData.items.filter(function(it){ return dndAns[it.id] === it.cat; }).length;
+  var res = document.getElementById("dndResult");
+  res.style.display = "block";
+  if (correct === dndData.items.length) { res.innerHTML = "&#127881; Perfect! All " + correct + " correct!"; res.style.color = "var(--leaf)"; addXP(50,"Sorting done!"); addAct(); }
+  else { res.innerHTML = correct + "/" + dndData.items.length + " correct. Try again!"; res.style.color = "var(--sun)"; }
+}
+
+// ── SOIL ─────────────────────────────────────────────
+function renderSoil() {
+  document.getElementById("soilGame").innerHTML = soilData.map(function(s, i){
+    return '<div class="soil-type ' + s.cls + '" onclick="pickSoil(' + i + ')" id="st' + i + '">'
+      + '<h4>' + s.name + '</h4><p>' + s.desc + '</p>'
+      + '<div style="margin-top:.7rem;font-size:.8rem;font-weight:700;opacity:.9">Best: ' + s.crops + '</div>'
+      + '</div>';
+  }).join("");
+}
+function pickSoil(i) {
+  document.querySelectorAll(".soil-type").forEach(function(s){ s.classList.remove("selected"); });
+  document.getElementById("st" + i).classList.add("selected");
+  showToast(soilData[i].name + " selected! Best for: " + soilData[i].crops);
+  addXP(5, "Soil knowledge!");
+}
+
+// ── TIPS ─────────────────────────────────────────────
+function renderTips() {
+  document.getElementById("tipsGrid").innerHTML = tips.map(function(t){
+    return '<div class="tip-card"><div class="tip-icon">' + t.icon + '</div><h4>' + t.title + '</h4><p>' + t.text + '</p></div>';
+  }).join("");
+}
+
+// ── SMOOTH SCROLL ────────────────────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(function(a){
+  a.addEventListener("click", function(e){
+    e.preventDefault();
+    var el = document.querySelector(a.getAttribute("href"));
+    if (el) el.scrollIntoView({behavior:"smooth", block:"start"});
+  });
+});
+
+// ── INIT ─────────────────────────────────────────────
+renderCrops();
+renderQuiz();
+initMemory();
+initDND();
+renderSoil();
+renderTips();
+</script>
+</body>
+</html>
